@@ -1,8 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/mapped-types';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { Match } from '../../decorators/match.decorator';
 
-export class CreateUserDto {
+export class UserCreateDto {
   @IsNotEmpty({ message: 'First name is required' })
   @ApiProperty({ type: String, required: true, example: 'John' })
   firstName: string;
@@ -24,8 +25,12 @@ export class CreateUserDto {
   @ApiProperty({ type: String, required: true, example: 'Password123!' })
   password: string;
 
-  @IsNotEmpty({ message: 'confirmPassword is required' })
-  @Match('password', { message: "password doesn't match" })
+  @IsNotEmpty({ message: 'Confirm password is required' })
+  @Match('password', { message: 'Passwords do not match' })
   @ApiProperty({ type: String, required: true, example: 'Password123!' })
   confirmPassword: string;
 }
+
+export class UserUpdateDto extends PartialType(
+  OmitType(UserCreateDto, ['password', 'confirmPassword'] as const),
+) {}
