@@ -17,6 +17,8 @@ enum Role {
   MECHANICS
   PART_DEALER
   JUNK_YARD
+  DRIVER
+  FLEET_OWNER
 }
 
 model User {
@@ -27,6 +29,11 @@ model User {
   phoneNo   String @unique
   password  String
   role      Role   @default(USER)
+
+  isPhoneNoConfirmed Boolean @default(false)
+  isEmailConfirmed   Boolean @default(true)
+
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt

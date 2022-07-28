@@ -1,0 +1,21 @@
+[
+  {
+    "_id": "8ac96e04-7363-44a8-9e72-16db8ad545fc",
+    "colId": "history",
+    "containerId": "",
+    "name": "{{base_url}}/auth/signup",
+    "url": "{{base_url}}/auth/signup",
+    "method": "POST",
+    "sortNum": 0,
+    "created": "2022-07-28T03:01:14.764Z",
+    "modified": "2022-07-28T03:29:10.489Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"email\": \"gistkiosk@gmail.com\",\n    \"phoneNo\": \"+2349070933598\",\n    \"firstName\": \"Oluwaseyifunmi\",\n    \"lastName\": \"Oyefeso\",\n    \"password\": \"Password123!\",\n    \"confirmPassword\": \"Password123!\"\n}",
+      "form": []
+    },
+    "tests": []
+  }
+]
