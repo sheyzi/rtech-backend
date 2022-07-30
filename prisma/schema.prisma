@@ -5,6 +5,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator nestJsDto {
+  provider                        = "prisma-generator-nestjs-dto"
+  output                          = "../src/generated/prisma-class"
+  outputToNestJsResourceStructure = "false"
+  exportRelationModifierClasses   = "true"
+  reExport                        = "false"
+  createDtoPrefix                 = "Create"
+  updateDtoPrefix                 = "Update"
+  dtoSuffix                       = "Dto"
+  entityPrefix                    = ""
+  entitySuffix                    = ""
+  fileNamingStyle                 = "pascal"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

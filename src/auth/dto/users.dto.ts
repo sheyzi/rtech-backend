@@ -1,7 +1,9 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { Match } from '../../decorators/match.decorator';
+import { User } from '../../generated/prisma-class/User.entity';
 
 export class UserCreateDto {
   @IsNotEmpty({ message: 'First name is required' })
@@ -34,3 +36,43 @@ export class UserCreateDto {
 export class UserUpdateDto extends PartialType(
   OmitType(UserCreateDto, ['password', 'confirmPassword'] as const),
 ) {}
+
+export class ReadUserEntity extends OmitType(User, ['password'] as const) {
+  @ApiProperty({ type: String, required: true, example: 'John' })
+  firstName: string;
+
+  @ApiProperty({ type: String, required: true, example: 'Doe' })
+  lastName: string;
+
+  @ApiProperty({ type: String, required: true, example: 'johndoe@company.com' })
+  email: string;
+
+  @ApiProperty({ type: String, required: true, example: '+12345678910' })
+  phoneNo: string;
+
+  @ApiProperty({ enum: Role, required: true, example: Role.USER })
+  role: Role;
+
+  @ApiProperty({ type: Boolean, required: true, example: false })
+  isPhoneNoConfirmed: boolean;
+
+  @ApiProperty({ type: Boolean, required: true, example: false })
+  isEmailConfirmed: boolean;
+
+  @ApiProperty({ type: Boolean, required: true, example: true })
+  isActive: boolean;
+
+  @ApiProperty({
+    type: Date,
+    required: true,
+    example: '2020-01-01T00:00:00.000Z',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    type: Date,
+    required: true,
+    example: '2020-01-01T00:00:00.000Z',
+  })
+  updatedAt: Date;
+}
