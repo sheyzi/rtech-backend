@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,7 +7,7 @@ import { Prisma, Role } from '@prisma/client';
 import { HelpersService } from '../../helpers/helpers.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SmsService } from '../../sms/sms.service';
-import { UserCreateDto, UserUpdateDto } from '../dto/users.dto';
+import { UserCreateDto } from '../dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +26,7 @@ export class UsersService {
     });
 
     if (oldUser) {
-      throw new BadRequestException('User data already exists');
+      throw new ConflictException('User data already exists');
     }
 
     // Hash password
@@ -68,6 +68,10 @@ export class UsersService {
 
   async getOne(where: Prisma.UserWhereUniqueInput) {
     return this.prisma.user.findUnique({ where });
+  }
+
+  async getFirst(where?: Prisma.UserWhereInput) {
+    return this.prisma.user.findFirst({ where });
   }
 
   async update(
