@@ -21,7 +21,7 @@ export class UserCreateDto {
 
   @IsNotEmpty({ message: 'Phone number is required' })
   @ApiProperty({ type: String, required: true, example: '+12345678910' })
-  phoneNo: string;
+  phoneNumber: string;
 
   @IsNotEmpty({ message: 'Password is required' })
   @ApiProperty({ type: String, required: true, example: 'Password123!' })

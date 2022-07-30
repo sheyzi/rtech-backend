@@ -36,23 +36,30 @@ enum Role {
 }
 
 model User {
-  id        String @id @default(uuid())
-  firstName String
-  lastName  String
-  email     String @unique
-  phoneNo   String @unique
-  password  String
-  role      Role   @default(USER)
+  id          String @id @default(uuid())
+  firstName   String @map("first_name")
+  lastName    String @map("last_name")
+  email       String @unique
+  phoneNumber String @unique @map("phone_number")
+  password    String
+  role        Role   @default(USER)
 
-  isPhoneNoConfirmed Boolean @default(false)
-  isEmailConfirmed   Boolean @default(true)
+  isPhoneNumberConfirmed Boolean @default(false) @map("is_phone_number_confirmed")
+  isEmailConfirmed       Boolean @default(true) @map("is_email_confirmed")
 
-  isActive Boolean @default(true)
+  isActive Boolean @default(true) @map("is_active")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
 
-  @@unique([email, phoneNo])
-  @@index([email, phoneNo])
+  @@unique([email, phoneNumber])
+  @@index([email, phoneNumber])
   @@map("users")
+}
+
+model UsedToken {
+  id        String   @id
+  expiresAt DateTime @map("expires_at")
+
+  @@map("used_tokens")
 }
