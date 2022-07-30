@@ -9,9 +9,12 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -37,6 +40,7 @@ import {
 } from './dto/auth.dto';
 import { LoginDto, LoginSuccessfulType } from './dto/login.dto';
 import { ReadUserEntity, UserCreateDto } from './dto/users.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from './users/users.service';
 
 @Controller('auth')
@@ -118,5 +122,20 @@ export class AuthController {
       data.phoneNo,
       data.verificationCode,
     );
+  }
+
+  @Get('me')
+  @ApiOkResponse({
+    description: 'Get user data',
+    type: ReadUserEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not logged in',
+    type: UnauthorizedErrorSwaggerType,
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getUserData(@Req() req) {
+    return req.user;
   }
 }

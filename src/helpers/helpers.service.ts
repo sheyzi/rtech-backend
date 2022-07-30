@@ -24,8 +24,10 @@ export class HelpersService {
     };
 
     const options: JwtSignOptions = {
-      expiresIn: this.configService.get<string>('ACCESS_TOKEN_EXPIRATION'),
-      secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
+      expiresIn: this.configService.getOrThrow<string>(
+        'ACCESS_TOKEN_EXPIRATION',
+      ),
+      secret: this.configService.getOrThrow<string>('ACCESS_TOKEN_SECRET'),
     };
 
     return this.jwt.sign(payload, options);
@@ -38,8 +40,10 @@ export class HelpersService {
     };
 
     const options: JwtSignOptions = {
-      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-      expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRATION'),
+      secret: this.configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
+      expiresIn: this.configService.getOrThrow<string>(
+        'REFRESH_TOKEN_EXPIRATION',
+      ),
     };
 
     return this.jwt.sign(payload, options);
