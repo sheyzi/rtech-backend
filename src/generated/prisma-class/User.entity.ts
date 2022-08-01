@@ -5,10 +5,10 @@ export class User {
   firstName: string;
   lastName: string;
   email: string;
-  phoneNo: string;
+  phoneNumber: string;
   password: string;
   role: Role;
-  isPhoneNoConfirmed: boolean;
+  isPhoneNumberConfirmed: boolean;
   isEmailConfirmed: boolean;
   isActive: boolean;
   createdAt: Date;

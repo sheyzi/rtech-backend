@@ -9,9 +9,12 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -33,10 +36,12 @@ import { AuthService } from './auth.service';
 import {
   PhoneNumberVerifyDto,
   PhoneVerifiedSuccessful,
+  RefreshTokenDto,
   VerificationCodeSentSuccessful,
 } from './dto/auth.dto';
 import { LoginDto, LoginSuccessfulType } from './dto/login.dto';
 import { ReadUserEntity, UserCreateDto } from './dto/users.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from './users/users.service';
 
 @Controller('auth')
@@ -49,7 +54,7 @@ export class AuthController {
 
   // TODO: Implement email verification
   // TODO: Implement reset password mail sending and reset password confirmation
-  // TODO: Implement login and refresh token
+  // TODO: Implement refresh token
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -60,6 +65,20 @@ export class AuthController {
   })
   async login(@Body() data: LoginDto) {
     return this.authService.login(data);
+  }
+
+  @Post('refresh_token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Token refreshed successful',
+    type: LoginSuccessfulType,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid token',
+    type: UnauthorizedErrorSwaggerType,
+  })
+  async refreshToken(@Body() data: RefreshTokenDto) {
+    return this.authService.refreshToken(data.refresh_token);
   }
 
   @Post('signup')
@@ -118,5 +137,20 @@ export class AuthController {
       data.phoneNo,
       data.verificationCode,
     );
+  }
+
+  @Get('me')
+  @ApiOkResponse({
+    description: 'Get user data',
+    type: ReadUserEntity,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User is not logged in',
+    type: UnauthorizedErrorSwaggerType,
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getUserData(@Req() req) {
+    return req.user;
   }
 }
