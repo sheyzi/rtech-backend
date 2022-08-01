@@ -22,8 +22,8 @@ export class HelpersService {
     return argon.verify(hashedPassword, plainPassword);
   }
 
-  async markTokenAsUsed(token: string, expiresIn: Date): Promise<void> {
-    await this.prismaService.usedToken.create({
+  async markTokenAsUsed(token: string, expiresIn: Date) {
+    return await this.prismaService.usedToken.create({
       data: { id: token, expiresAt: expiresIn },
     });
   }
