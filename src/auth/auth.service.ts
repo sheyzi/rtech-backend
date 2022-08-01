@@ -19,13 +19,13 @@ export class AuthService {
 
   async sendPhoneNumberVerification(phoneNumber: string) {
     // Check if user already exists
-    const user = await this.usersService.getOne({ phoneNo: phoneNumber });
+    const user = await this.usersService.getOne({ phoneNumber: phoneNumber });
 
     if (!user) {
       throw new NotFoundException('User data does not exist');
     }
 
-    if (user.isPhoneNoConfirmed) {
+    if (user.isPhoneNumberConfirmed) {
       throw new BadRequestException('Phone number is already verified');
     }
 
@@ -36,13 +36,13 @@ export class AuthService {
 
   async verifyPhoneNumber(phoneNumber: string, verificationCode: string) {
     // Check if user already exists
-    const user = await this.usersService.getOne({ phoneNo: phoneNumber });
+    const user = await this.usersService.getOne({ phoneNumber: phoneNumber });
 
     if (!user) {
       throw new NotFoundException('User data does not exist');
     }
 
-    if (user.isPhoneNoConfirmed) {
+    if (user.isPhoneNumberConfirmed) {
       throw new BadRequestException('Phone number is already verified');
     }
 
@@ -59,7 +59,7 @@ export class AuthService {
     // Update user
     await this.usersService.update(
       { id: user.id },
-      { isPhoneNoConfirmed: true },
+      { isPhoneNumberConfirmed: true },
     );
     return { message: 'Phone number verified' };
   }
@@ -67,7 +67,7 @@ export class AuthService {
   async verifyUser(identity: string, password: string) {
     // Check if user already exists
     const user = await this.usersService.getFirst({
-      OR: [{ email: identity }, { phoneNo: identity }],
+      OR: [{ email: identity }, { phoneNumber: identity }],
     });
 
     if (!user) {
@@ -98,6 +98,24 @@ export class AuthService {
     return {
       access_token,
       refresh_token,
+      type: 'bearer',
+    };
+  }
+
+  async refreshToken(token: string) {
+    const userId = await this.helpersService.decodeRefreshToken(token);
+    const user = await this.usersService.getOne({ id: userId });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const accessToken = await this.helpersService.generateAccessToken(userId);
+    const refreshToken = await this.helpersService.generateRefreshToken(userId);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
       type: 'bearer',
     };
   }

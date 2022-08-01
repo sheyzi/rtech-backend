@@ -21,6 +21,7 @@ async function bootstrap() {
     .setTitle('RTech API')
     .setDescription('The api for RTech Diagnostics')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -5,6 +5,8 @@ import { HelpersService } from '../../helpers/helpers.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Role } from '@prisma/client';
 import { SmsService } from '../../sms/sms.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 const userId = uuid4();
 const testFirstName1 = 'John';
@@ -87,6 +89,8 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         HelpersService,
+        JwtService,
+        ConfigService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: SmsService, useValue: mockSmsService },
       ],
@@ -123,7 +127,7 @@ describe('UsersService', () => {
             firstName: testFirstName1,
             lastName: testLastName1,
             email: testEmail,
-            phoneNo: testPhoneNo,
+            phoneNumber: testPhoneNo,
             password: testPassword,
             confirmPassword: testPassword,
           },
@@ -139,7 +143,7 @@ describe('UsersService', () => {
             firstName: testFirstName1,
             lastName: testLastName1,
             email: testEmail,
-            phoneNo: testPhoneNo,
+            phoneNumber: testPhoneNo,
             password: testPassword,
             confirmPassword: testPassword,
           },
@@ -176,7 +180,7 @@ describe('UsersService', () => {
             firstName: 'Samuel',
             lastName: 'Jones',
             email: 'samuellajones@hdj.com',
-            phoneNo: '+12345678912',
+            phoneNumber: '+12345678912',
           },
         ),
       ).rejects.toThrow('User does not exist!');

@@ -32,3 +32,9 @@ export class VerificationCodeSentSuccessful {
   @ApiProperty({ example: 'Verification code sent' })
   message: string;
 }
+
+export class RefreshTokenDto {
+  @ApiProperty({ description: 'refresh token' })
+  @IsNotEmpty({ message: 'refresh_token is required' })
+  refresh_token: string;
+}

@@ -6,7 +6,6 @@ import {
 import { Prisma, Role } from '@prisma/client';
 import { HelpersService } from '../../helpers/helpers.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { SmsService } from '../../sms/sms.service';
 import { UserCreateDto } from '../dto/users.dto';
 
 @Injectable()
@@ -14,14 +13,13 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private helpersService: HelpersService,
-    private smsService: SmsService,
   ) {}
 
   async create(data: UserCreateDto, role: Role) {
     // Check if user already exists
     const oldUser = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: data.email }, { phoneNo: data.phoneNo }],
+        OR: [{ email: data.email }, { phoneNumber: data.phoneNumber }],
       },
     });
 
@@ -36,7 +34,7 @@ export class UsersService {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      phoneNo: data.phoneNo,
+      phoneNumber: data.phoneNumber,
       password,
       role,
     };
@@ -48,10 +46,13 @@ export class UsersService {
         email: true,
         firstName: true,
         lastName: true,
-        phoneNo: true,
+        phoneNumber: true,
         role: true,
         createdAt: true,
         updatedAt: true,
+        isActive: true,
+        isPhoneNumberConfirmed: true,
+        isEmailConfirmed: true,
       },
     });
 
