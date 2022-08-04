@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
 
 @Injectable()
-export class SmsService {
+export class VerificationService {
   private twilioClient: Twilio;
 
   constructor(private configService: ConfigService) {
@@ -24,6 +24,19 @@ export class SmsService {
     });
   }
 
+  async initiateEmailVerification(email: string) {
+    const serviceSid = this.configService.get<string>(
+      'TWILIO_VERIFICATION_SERVICE_SID',
+    );
+
+    return this.twilioClient.verify.v2
+      .services(serviceSid)
+      .verifications.create({
+        to: email,
+        channel: 'email',
+      });
+  }
+
   async verifyPhoneNumber(
     phoneNumber: string,
     verificationCode: string,
@@ -33,7 +46,7 @@ export class SmsService {
         'TWILIO_VERIFICATION_SERVICE_SID',
       );
 
-      const result = await this.twilioClient.verify
+      const result = await this.twilioClient.verify.v2
         .services(serviceSid)
         .verificationChecks.create({ to: phoneNumber, code: verificationCode });
 
@@ -41,6 +54,30 @@ export class SmsService {
         result.status === 'approved' &&
         result.valid === true &&
         result.to === phoneNumber;
+
+      return isValid;
+    } catch (e) {
+      if (e.status === 404 && e.code === 20404) {
+        return false;
+      }
+      throw e;
+    }
+  }
+
+  async verifyEmail(email: string, verificationCode: string): Promise<boolean> {
+    try {
+      const serviceSid = this.configService.get<string>(
+        'TWILIO_VERIFICATION_SERVICE_SID',
+      );
+
+      const result = await this.twilioClient.verify
+        .services(serviceSid)
+        .verificationChecks.create({ to: email, code: verificationCode });
+
+      const isValid =
+        result.status === 'approved' &&
+        result.valid === true &&
+        result.to === email;
 
       return isValid;
     } catch (e) {

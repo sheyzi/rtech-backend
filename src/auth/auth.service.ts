@@ -5,14 +5,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { HelpersService } from '../helpers/helpers.service';
-import { SmsService } from '../sms/sms.service';
+import { VerificationService } from '../verification/verification.service';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from './users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private smsService: SmsService,
+    private verificationService: VerificationService,
     private usersService: UsersService,
     private helpersService: HelpersService,
   ) {}
@@ -30,7 +30,24 @@ export class AuthService {
     }
 
     // Send verification code
-    await this.smsService.initiatePhoneNumberVerification(phoneNumber);
+    await this.verificationService.initiatePhoneNumberVerification(phoneNumber);
+    return { message: 'Verification code sent' };
+  }
+
+  async sendEmailVerification(email: string) {
+    // Check if user already exists
+    const user = await this.usersService.getOne({ email: email });
+
+    if (!user) {
+      throw new NotFoundException('User data does not exist');
+    }
+
+    if (user.isEmailConfirmed) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    // Send verification code
+    await this.verificationService.initiateEmailVerification(email);
     return { message: 'Verification code sent' };
   }
 
@@ -47,7 +64,7 @@ export class AuthService {
     }
 
     // Verify verification code
-    const isValid = await this.smsService.verifyPhoneNumber(
+    const isValid = await this.verificationService.verifyPhoneNumber(
       phoneNumber,
       verificationCode,
     );
@@ -62,6 +79,32 @@ export class AuthService {
       { isPhoneNumberConfirmed: true },
     );
     return { message: 'Phone number verified' };
+  }
+
+  async verifyEmail(email: string, verificationCode: string) {
+    // Check if user already exists
+    const user = await this.usersService.getOne({ email });
+    if (!user) {
+      throw new NotFoundException('User data does not exist');
+    }
+
+    if (user.isEmailConfirmed) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    // Verify verification code
+    const isValid = await this.verificationService.verifyEmail(
+      email,
+      verificationCode,
+    );
+
+    if (!isValid) {
+      throw new BadRequestException('Verification code is invalid');
+    }
+
+    // Update user
+    await this.usersService.update({ id: user.id }, { isEmailConfirmed: true });
+    return { message: 'Email verified successfully' };
   }
 
   async verifyUser(identity: string, password: string) {
