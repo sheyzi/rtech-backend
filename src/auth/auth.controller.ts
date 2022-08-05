@@ -34,6 +34,8 @@ import {
 import { EnumValidationPipe } from '../pipes/enum.pipe';
 import { AuthService } from './auth.service';
 import {
+  EmailVerifiedSuccessful,
+  EmailVerifyDto,
   PhoneNumberVerifyDto,
   PhoneVerifiedSuccessful,
   RefreshTokenDto,
@@ -52,9 +54,7 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
-  // TODO: Implement email verification
   // TODO: Implement reset password mail sending and reset password confirmation
-  // TODO: Implement refresh token
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -137,6 +137,39 @@ export class AuthController {
       data.phoneNo,
       data.verificationCode,
     );
+  }
+
+  @Get('verify/email/:email')
+  @ApiParam({ name: 'email', type: String })
+  @ApiOkResponse({
+    description: 'Verification sent',
+    type: VerificationCodeSentSuccessful,
+  })
+  @ApiBadRequestResponse({ type: BadRequestErrorSwaggerType })
+  @ApiNotFoundResponse({
+    description: "User with the email doesn't exists",
+    type: NotFoundErrorSwaggerType,
+  })
+  async sendEmailVerificationCode(@Param('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    return this.authService.sendEmailVerification(email);
+  }
+
+  @Post('verify/email/confirm')
+  @ApiOkResponse({
+    description: 'Email verified successfully',
+    type: EmailVerifiedSuccessful,
+  })
+  @ApiBadRequestResponse({ type: BadRequestErrorSwaggerType })
+  @ApiNotFoundResponse({
+    description: "User with this email doesn't exists",
+    type: NotFoundErrorSwaggerType,
+  })
+  async verifyEmail(@Body() data: EmailVerifyDto) {
+    return this.authService.verifyEmail(data.email, data.verificationCode);
   }
 
   @Get('me')
