@@ -38,6 +38,13 @@ export class UserUpdateDto extends PartialType(
 ) {}
 
 export class ReadUserEntity extends OmitType(User, ['password'] as const) {
+  @ApiProperty({
+    type: String,
+    required: true,
+    example: '2644dcf1-ce5d-42a2-97ce-b7f26b6cb95b',
+  })
+  id: string;
+
   @ApiProperty({ type: String, required: true, example: 'John' })
   firstName: string;
 
