@@ -39,6 +39,9 @@ import {
   PhoneNumberVerifyDto,
   PhoneVerifiedSuccessful,
   RefreshTokenDto,
+  ResetPasswordCodeSentSuccessful,
+  ResetPasswordDto,
+  ResetPasswordSuccessful,
   VerificationCodeSentSuccessful,
 } from './dto/auth.dto';
 import { LoginDto, LoginSuccessfulType } from './dto/login.dto';
@@ -53,8 +56,6 @@ export class AuthController {
     private usersService: UsersService,
     private authService: AuthService,
   ) {}
-
-  // TODO: Implement reset password mail sending and reset password confirmation
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -185,5 +186,38 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async getUserData(@Req() req) {
     return req.user;
+  }
+
+  @Get('reset-password')
+  @ApiOkResponse({
+    description: 'Reset password code sent',
+    type: ResetPasswordCodeSentSuccessful,
+  })
+  @ApiNotFoundResponse({
+    description: "User with this email doesn't exists",
+    type: NotFoundErrorSwaggerType,
+  })
+  @ApiBadRequestResponse({ type: BadRequestErrorSwaggerType })
+  @ApiQuery({ name: 'email', type: String })
+  async sendResetPasswordCode(@Query('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    return this.authService.sendResetPasswordEmail(email);
+  }
+
+  @Post('reset-password/confirm')
+  @ApiOkResponse({
+    description: 'Password reset successful',
+    type: ResetPasswordSuccessful,
+  })
+  @ApiBadRequestResponse({ type: BadRequestErrorSwaggerType })
+  @ApiNotFoundResponse({
+    description: "User with this email doesn't exists",
+    type: NotFoundErrorSwaggerType,
+  })
+  async resetPassword(@Body() data: ResetPasswordDto) {
+    return this.authService.resetPassword(data.email, data.otp, data.password);
   }
 }
