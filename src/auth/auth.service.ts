@@ -162,4 +162,50 @@ export class AuthService {
       type: 'bearer',
     };
   }
+
+  async sendResetPasswordEmail(email: string) {
+    // Check if user already exists
+    const user = await this.usersService.getOne({ email });
+
+    if (!user) {
+      throw new NotFoundException('User data does not exist');
+    }
+
+    // Send reset password code
+    await this.verificationService.initiateEmailVerification(email);
+    return { message: 'Reset password code sent' };
+  }
+
+  async resetPassword(
+    email: string,
+    verificationCode: string,
+    password: string,
+  ) {
+    // Check if user already exists
+    const user = await this.usersService.getOne({ email });
+
+    if (!user) {
+      throw new NotFoundException('User data does not exist');
+    }
+
+    // Verify verification code
+    const isValid = await this.verificationService.verifyEmail(
+      email,
+      verificationCode,
+    );
+
+    if (!isValid) {
+      throw new BadRequestException('Verification code is invalid');
+    }
+
+    // Hash password
+    const hashedPassword = await this.helpersService.hashPassword(password);
+
+    // Update user
+    await this.usersService.update(
+      { id: user.id },
+      { password: hashedPassword },
+    );
+    return { message: 'Password reset successfully' };
+  }
 }
